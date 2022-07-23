@@ -1,7 +1,7 @@
 # BSynchro
-This project contain to api's, one for list all customer from database and the other to add new account for customer.
+This project contain two api's, one for list all customer from database and the other to add new account for customer.
 
-Please follow the below steps:
+Please follow the below steps to get started:
 - Download the code
 - Make sure you have .net 6 SDK in your machine
 - Open it on visual studio 2022
