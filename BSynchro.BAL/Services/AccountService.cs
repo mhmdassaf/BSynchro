@@ -1,4 +1,5 @@
-﻿using BSynchro.BAL.Interfaces;
+﻿using AutoMapper;
+using BSynchro.BAL.Interfaces;
 using BSynchro.Common.Models;
 using BSynchro.Common.Models.Account;
 using BSynchro.DAL.DataContext;
@@ -15,11 +16,20 @@ namespace BSynchro.BAL.Services
     public class AccountService : IAccountService
     {
         private readonly BSynchroDBContext _dBContext;
-        public AccountService(BSynchroDBContext dBContext)
+        private readonly IMapper _mapper;
+        public AccountService(BSynchroDBContext dBContext, IMapper mapper)
         {
             _dBContext = dBContext;
+            _mapper = mapper;
         }
 
+        public async Task<List<CustomerListOutput>> CustomerList()
+        {
+            return await _dBContext.Customers.Include(i => i.Accounts).ThenInclude(t => t.FromAccountTransactions)
+                                             .Include(i => i.Accounts).ThenInclude(t => t.ToAccountTransactions)
+                                             .Select(s => _mapper.Map<CustomerListOutput>(s))
+                                             .ToListAsync();
+        }
         public async Task<OpenNewAccountOutput> OpenNewAccount(OpenNewAccountInput input)
         {
             var customer = await _dBContext.Customers.FindAsync(input.CustomerId);

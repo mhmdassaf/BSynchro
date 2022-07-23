@@ -19,6 +19,27 @@ namespace BSynchro.API.Controllers
             _accountService = accountService;
         }
 
+        [HttpGet]
+        public async Task<IActionResult> CustomerList()
+        {
+            var response = new ApiResponse();
+            try
+            {
+                List<CustomerListOutput> output = await _accountService.CustomerList();
+                response.Result = output;
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+                response.Code = (int)HttpStatusCode.InternalServerError;
+                response.Message = "SOMETHING_HAPPEND_IN_SERVER";
+                response.Flag = Flag.Fail;
+            }
+            return StatusCode(response.Code, response);
+        }
+
+
         [HttpPost]
         public async Task<IActionResult> OpenNewAccount(OpenNewAccountInput input)
         {

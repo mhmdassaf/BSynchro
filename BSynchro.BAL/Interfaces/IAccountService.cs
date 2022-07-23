@@ -11,5 +11,6 @@ namespace BSynchro.BAL.Interfaces
     public interface IAccountService
     {
         Task<OpenNewAccountOutput> OpenNewAccount(OpenNewAccountInput input);
+        Task<List<CustomerListOutput>> CustomerList();
     }
 }

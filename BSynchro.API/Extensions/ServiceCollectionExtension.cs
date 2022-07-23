@@ -1,4 +1,6 @@
-﻿using BSynchro.BAL.Interfaces;
+﻿using AutoMapper;
+using BSynchro.API.MappingProfiles;
+using BSynchro.BAL.Interfaces;
 using BSynchro.BAL.Services;
 using BSynchro.DAL.DataContext;
 using Microsoft.EntityFrameworkCore;
@@ -19,5 +21,12 @@ namespace BSynchro.API.Extensions
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
              => services.AddScoped<IAccountService, AccountService>()
                         .AddScoped<ITransactionService, TransactionService>();
+
+
+        public static IServiceCollection AddAutoMapping(this IServiceCollection services)
+        {
+            services.AddAutoMapper(typeof(MappingProfile));
+            return services;
+        }
     }
 }
