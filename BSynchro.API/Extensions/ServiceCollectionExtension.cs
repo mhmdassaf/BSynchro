@@ -19,8 +19,7 @@ namespace BSynchro.API.Extensions
             });
 
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
-             => services.AddScoped<IAccountService, AccountService>()
-                        .AddScoped<ITransactionService, TransactionService>();
+             => services.AddScoped<IAccountService, AccountService>();
 
 
         public static IServiceCollection AddAutoMapping(this IServiceCollection services)
