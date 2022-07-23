@@ -10,14 +10,13 @@ namespace BSynchro.DAL.Entities
     {
         public Guid Id { get; set; }
         public double Amount { get; set; }
-        public int Currency { get; set; }
         public Guid FromCustomerId { get; set; }
         public Guid ToCustomerId { get; set; }
         public Guid? FromAccountId { get; set; }
         public Guid? ToAccountId { get; set; }
         public DateTime CreatedDate { get; set; }
         public string CreatedBy { get; set; }
-        public DateTime ModifiedDate { get; set; }
+        public DateTime? ModifiedDate { get; set; }
         public string ModifedBy { get; set; }
 
         public virtual Account FromAccount { get; set; }

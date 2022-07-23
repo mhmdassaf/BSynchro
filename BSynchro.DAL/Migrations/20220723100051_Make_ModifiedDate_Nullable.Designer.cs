@@ -4,6 +4,7 @@ using BSynchro.DAL.DataContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BSynchro.DAL.Migrations
 {
     [DbContext(typeof(BSynchroDBContext))]
-    partial class BSynchroDBContextModelSnapshot : ModelSnapshot
+    [Migration("20220723100051_Make_ModifiedDate_Nullable")]
+    partial class Make_ModifiedDate_Nullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

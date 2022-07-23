@@ -1,4 +1,6 @@
-﻿using System;
+﻿using BSynchro.Common.Models;
+using BSynchro.Common.Models.Account;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,5 +10,6 @@ namespace BSynchro.BAL.Interfaces
 {
     public interface IAccountService
     {
+        Task<OpenNewAccountOutput> OpenNewAccount(OpenNewAccountInput input);
     }
 }

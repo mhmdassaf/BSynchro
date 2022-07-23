@@ -18,12 +18,11 @@ namespace BSynchro.DAL.Entities
         public string Number { get; set; }
         public double OpeningBalance { get; set; }
         public double Balance { get; set; }
-        public int Currency { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public DateTime CreatedDate { get; set; }
         public string CreatedBy { get; set; }
-        public DateTime ModifiedDate { get; set; }
+        public DateTime? ModifiedDate { get; set; }
         public string ModifedBy { get; set; }
         public virtual Customer Customer { get; set; }
 

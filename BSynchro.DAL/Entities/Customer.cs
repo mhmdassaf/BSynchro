@@ -37,7 +37,7 @@ namespace BSynchro.DAL.Entities
         public string JobDescription { get; set; }
         public DateTime CreatedDate { get; set; }
         public string CreatedBy { get; set; }
-        public DateTime ModifiedDate { get; set; }
+        public DateTime? ModifiedDate { get; set; }
         public string ModifedBy { get; set; }
         public virtual ICollection<Account> Accounts { get; set; }
         public virtual ICollection<Transaction> FromCustomerTransactions { get; set; }
