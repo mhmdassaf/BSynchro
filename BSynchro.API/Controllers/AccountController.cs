@@ -19,6 +19,10 @@ namespace BSynchro.API.Controllers
             _accountService = accountService;
         }
 
+        /// <summary>
+        /// List all exsting customers on database
+        /// </summary>
+        /// <returns>list of customers</returns>
         [HttpGet]
         public async Task<IActionResult> CustomerList()
         {
@@ -39,7 +43,12 @@ namespace BSynchro.API.Controllers
             return StatusCode(response.Code, response);
         }
 
-
+        /// <summary>
+        /// Create new banking account based on customer id and InitialCredit inputs. 
+        /// If  InitialCredit positive then new transaction will created
+        /// </summary>
+        /// <param name="input">the id of customer and initial credit of the new account</param>
+        /// <returns>Response message either success or failure</returns>
         [HttpPost]
         public async Task<IActionResult> OpenNewAccount(OpenNewAccountInput input)
         {
