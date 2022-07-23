@@ -16,6 +16,7 @@ namespace BSynchro.DAL.Extensions
             {
                 new Customer
                 {
+                    Id = Guid.NewGuid(),
                     BirthDate = new DateTime(1995,3,14),
                     City = "Kafrdenis",
                     CreatedBy = "Seed_Function",
@@ -32,6 +33,7 @@ namespace BSynchro.DAL.Extensions
                 },
                 new Customer
                 {
+                    Id = Guid.NewGuid(),
                     BirthDate = new DateTime(1991,6,14),
                     City = "Al Rafed",
                     CreatedBy = "Seed_Function",
@@ -48,6 +50,7 @@ namespace BSynchro.DAL.Extensions
                 },
                 new Customer
                 {
+                    Id = Guid.NewGuid(),
                     BirthDate = new DateTime(2000,3,6),
                     City = "Bierut",
                     CreatedBy = "Seed_Function",

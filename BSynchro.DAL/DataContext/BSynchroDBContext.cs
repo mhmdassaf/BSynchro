@@ -54,19 +54,23 @@ namespace BSynchro.DAL.DataContext
 
                 entity.HasOne(p => p.FromAccount)
                       .WithMany(c => c.FromAccountTransactions)
-                      .HasForeignKey(p => p.FromAccountId);
+                      .HasForeignKey(p => p.FromAccountId)
+                      .OnDelete(DeleteBehavior.ClientSetNull);
 
                 entity.HasOne(p => p.ToAccount)
                     .WithMany(c => c.ToAccountTransactions)
-                    .HasForeignKey(p => p.ToAccountId);
+                    .HasForeignKey(p => p.ToAccountId)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
 
                 entity.HasOne(p => p.FromCustomer)
                     .WithMany(c => c.FromCustomerTransactions)
-                    .HasForeignKey(p => p.FromCustomerId);
+                    .HasForeignKey(p => p.FromCustomerId)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
 
                 entity.HasOne(p => p.ToCustomer)
                     .WithMany(c => c.ToCustomerTransactions)
-                    .HasForeignKey(p => p.ToCustomerId);
+                    .HasForeignKey(p => p.ToCustomerId)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
             });
 
             modelBuilder.Seed();

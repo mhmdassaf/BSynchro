@@ -14,10 +14,10 @@ namespace BSynchro.DAL.Entities
             ToAccountTransactions = new HashSet<Transaction>();
         }
         public Guid Id { get; set; }
-        public int CustomerId { get; set; }
+        public Guid CustomerId { get; set; }
         public string Number { get; set; }
-        public decimal OpeningBalance { get; set; }
-        public decimal Balance { get; set; }
+        public double OpeningBalance { get; set; }
+        public double Balance { get; set; }
         public int Currency { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }

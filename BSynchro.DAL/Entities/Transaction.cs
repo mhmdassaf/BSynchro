@@ -9,7 +9,7 @@ namespace BSynchro.DAL.Entities
     public class Transaction
     {
         public Guid Id { get; set; }
-        public decimal Amount { get; set; }
+        public double Amount { get; set; }
         public int Currency { get; set; }
         public Guid FromCustomerId { get; set; }
         public Guid ToCustomerId { get; set; }
