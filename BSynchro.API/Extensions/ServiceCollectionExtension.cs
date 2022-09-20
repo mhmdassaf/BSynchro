@@ -2,21 +2,30 @@
 using BSynchro.API.MappingProfiles;
 using BSynchro.BAL.Interfaces;
 using BSynchro.BAL.Services;
+using BSynchro.Common.Models.Settings;
 using BSynchro.DAL.DataContext;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using MongoDB.Driver;
 
 namespace BSynchro.API.Extensions
 {
     public static class ServiceCollectionExtension
     {
         public static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
-            => services.AddDbContext<BSynchroDBContext>(opt =>
-            {
-                opt.UseSqlServer(configuration.GetConnectionString("DefaultConnection"), bulider =>
-                {
-                    bulider.CommandTimeout(90);
-                });
-            });
+        {
+            //services.AddDbContext<BSynchroDBContext>(opt =>
+            //{
+            //    opt.UseSqlServer(configuration.GetConnectionString("DefaultConnection"), bulider =>
+            //    {
+            //        bulider.CommandTimeout(90);
+            //    });
+            //});
+            services.Configure<DatabaseSettings>(configuration.GetSection(nameof(DatabaseSettings)));
+            services.AddSingleton<IDatabaseSettings>(sp => sp.GetRequiredService<IOptions<DatabaseSettings>>().Value);
+            services.AddSingleton<IMongoClient>(sp => new MongoClient(configuration.GetValue<string>("DatabaseSettings:ConnectionString")));
+            return services;
+        }
 
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
              => services.AddScoped<IAccountService, AccountService>();
