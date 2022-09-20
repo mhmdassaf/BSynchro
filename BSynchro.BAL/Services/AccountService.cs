@@ -110,12 +110,15 @@ namespace BSynchro.BAL.Services
         #region Extensions
         private async Task<string> GenerateAccountNb()
         {
-            //while (true)
-            //{
-            //    string accountNb = new Random().NextInt64(100000000000, 999999999999).ToString();
-            //    if (!await _dBContext.Accounts.AnyAsync(w => w.Number == accountNb))
-            //        return accountNb;
-            //}
+            while (true)
+            {
+                string accountNb = new Random().NextInt64(100000000000, 999999999999).ToString();
+                var cursor = await _dBContext.GetCollection<Customer>(DatabaseCollections.Customers)
+                                         .FindAsync(w => w.Accounts.Any(a => a.Number == accountNb));
+                var customer = await cursor.FirstOrDefaultAsync();
+                if (customer == null)
+                    return accountNb;
+            }
             return null;
         }
         #endregion
