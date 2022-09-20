@@ -7,6 +7,7 @@ using BSynchro.Common.Models.Settings;
 using BSynchro.DAL.DataContext;
 using BSynchro.DAL.Entities;
 using Microsoft.EntityFrameworkCore;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
@@ -28,70 +29,82 @@ namespace BSynchro.BAL.Services
 
         public async Task<List<CustomerListOutput>> CustomerList()
         {
-            //var customerCollection = _dBContext.GetCollection<Customer>(DatabaseCollections.Customers);
+            var customerCollection = _dBContext.GetCollection<Customer>(DatabaseCollections.Customers);
+            var transactionCollection = _dBContext.GetCollection<Transaction>(DatabaseCollections.Transactions);
+            var cursor = await transactionCollection.FindAsync(f => true);
+            var trans = cursor.ToList();
 
-            //var projection = Builders<Customer>.Projection.Include(fieldList.First());
-            //foreach (var field in fieldList.Skip(1))
-            //{
-            //    projection = projection.Include(field);
-            //}
-            //var result = await customerCollection.Find(f => true).Project(projection).ToListAsync();
+            var projection = Builders<Customer>.Projection.Expression(u =>
+                                     new CustomerListOutput
+                                     {
+                                         Id = u.Id,
+                                         FirstName = u.FirstName,
+                                         LastName = u.LastName,
+                                         Balance = u.Accounts.Sum(s => s.Balance),
+                                         Transactions = trans.Where(t => (t.FromCustomer != null && t.FromCustomer.Id == u.Id) || 
+                                                                         ( t.ToCustomer != null && t.ToCustomer.Id == u.Id))
+                                                             .Select(t => new TransactionModel
+                                                             {
+                                                                 FromCustomerId = t.FromCustomer != null ? t.FromCustomer.Id : null,
+                                                                 ToCustomerId = t.ToCustomer != null ? t.ToCustomer.Id : null,
+                                                                 Amount = t.Amount,
+                                                                 CreatedDate = t.CreatedDate,
+                                                                 Id = t.Id,
+                                                             })
+                                     });
 
+            var customerListOutputs = customerCollection.Aggregate().Project(projection).ToList();
 
-            //customerCollection.Find(f => true).Project<Customer,CustomerListOutput>()
-            //return await _dBContext.Customers.Include(i => i.Accounts).ThenInclude(t => t.FromAccountTransactions)
-            //                                 .Include(i => i.Accounts).ThenInclude(t => t.ToAccountTransactions)
-            //                                 .Select(s => _mapper.Map<CustomerListOutput>(s))
-            //                                 .ToListAsync();
-            return null;
+            return customerListOutputs;
+
         }
         public async Task<OpenNewAccountOutput> OpenNewAccount(OpenNewAccountInput input)
         {
-            return null;
-            //var customer = await _dBContext.Customers.FindAsync(input.CustomerId);
-            //if(customer != null)
-            //{
-            //    var newAccount = new Account
-            //    {
-            //        OpeningBalance = input.InitialCredit,
-            //        Balance = input.InitialCredit,
-            //        CreatedBy = customer.FirstName + " " + customer.LastName,
-            //        CreatedDate = DateTime.Now,
-            //        CustomerId = input.CustomerId,
-            //        Description = "Current account",
-            //        Name = input.AccountName,
-            //        Number = await GenerateAccountNb()
-            //    };
+            var customerColleciton = _dBContext.GetCollection<Customer>(DatabaseCollections.Customers);
+            var cursor  = await customerColleciton.FindAsync(f => f.Id == input.CustomerId);
+            var customer = cursor.FirstOrDefault();
+            if (customer != null)
+            {
+                var newAccount = new Account
+                {
+                    OpeningBalance = input.InitialCredit,
+                    Balance = input.InitialCredit,
+                    CreatedBy = customer.FirstName + " " + customer.LastName,
+                    CreatedDate = DateTime.Now,
+                    Description = "Current account",
+                    Name = input.AccountName,
+                    Number = await GenerateAccountNb()
+                };
 
-            //    if (input.InitialCredit > 0)
-            //        newAccount.ToAccountTransactions = new List<Transaction>
-            //        {
-            //            new Transaction
-            //            {
-            //                Amount = input.InitialCredit,
-            //                CreatedBy = customer.FirstName + " " + customer.LastName,
-            //                CreatedDate = DateTime.Now,
-            //                FromAccountId = null,
-            //                FromCustomerId = customer.Id,
-            //                ToCustomerId = customer.Id
-            //            }
-            //        };
-                
-            //    customer.Accounts.Add(newAccount);
-            //    _dBContext.Customers.Update(customer);
-            //    int res = await _dBContext.SaveChangesAsync();
-            //    if (res > 0)
-            //        return new OpenNewAccountOutput { ResponseMessage = "New account is created!" };
-            //    else
-            //        return new OpenNewAccountOutput { ResponseMessage = "Error on creating! try again" };
-            //}
-            //else
-            //{
-            //    return new OpenNewAccountOutput
-            //    {
-            //        ResponseMessage = "Wrong customer Id! customer not exist"
-            //    };
-            //}
+                if (input.InitialCredit > 0)
+                {
+                    var newTrans = new Transaction
+                    {
+                        Amount = input.InitialCredit,
+                        CreatedBy = customer.FirstName + " " + customer.LastName,
+                        CreatedDate = DateTime.Now,
+                        ToCustomer = new CustomerModel {Id = customer.Id, FirstName = customer.FirstName, LastName = customer.LastName },
+                    };
+                    _dBContext.GetCollection<Transaction>(DatabaseCollections.Transactions).InsertOne(newTrans);
+                    newAccount.ToAccountTransactions = new string[] { newTrans.Id };
+                }
+                   
+                customer.Accounts.Add(newAccount);
+
+                var result = customerColleciton.ReplaceOne(f => f.Id == customer.Id, customer);
+             
+                if (result.IsAcknowledged)
+                    return new OpenNewAccountOutput { ResponseMessage = "New account is created!" };
+                else
+                    return new OpenNewAccountOutput { ResponseMessage = "Error on creating! try again" };
+            }
+            else
+            {
+                return new OpenNewAccountOutput
+                {
+                    ResponseMessage = "Wrong customer Id! customer not exist"
+                };
+            }
         }
 
         #region Extensions

@@ -9,5 +9,6 @@ namespace BSynchro.Common.Constants
     public static class DatabaseCollections
     {
         public const string Customers = "customers";
+        public const string Transactions = "transactions";
     }
 }

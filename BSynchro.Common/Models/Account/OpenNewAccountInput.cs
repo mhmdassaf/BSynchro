@@ -1,4 +1,6 @@
-﻿using System;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -9,8 +11,8 @@ namespace BSynchro.Common.Models.Account
 {
     public class OpenNewAccountInput
     {
-        [Required]
-        public Guid CustomerId { get; set; }
+        [BsonId, BsonRepresentation(BsonType.ObjectId)]
+        public string CustomerId { get; set; }
 
         [Required]
         public string AccountName { get; set; } = string.Empty;

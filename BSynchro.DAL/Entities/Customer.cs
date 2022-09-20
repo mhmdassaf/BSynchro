@@ -1,4 +1,6 @@
-﻿using System;
+﻿using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -7,16 +9,13 @@ using System.Threading.Tasks;
 
 namespace BSynchro.DAL.Entities
 {
+
+    [BsonIgnoreExtraElements]
     public class Customer
     {
-        public Customer()
-        {
-            Accounts = new HashSet<Account>();
-            FromCustomerTransactions = new HashSet<Transaction>();
-            ToCustomerTransactions = new HashSet<Transaction>();
-        }
 
-        public Guid Id { get; set; }
+        [BsonId, BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
 
@@ -38,9 +37,9 @@ namespace BSynchro.DAL.Entities
         public DateTime CreatedDate { get; set; }
         public string CreatedBy { get; set; }
         public DateTime? ModifiedDate { get; set; }
-        public string ModifedBy { get; set; }
+        public string ModifiedBy { get; set; }
+
         public virtual ICollection<Account> Accounts { get; set; }
-        public virtual ICollection<Transaction> FromCustomerTransactions { get; set; }
-        public virtual ICollection<Transaction> ToCustomerTransactions { get; set; }
+   
     }
 }

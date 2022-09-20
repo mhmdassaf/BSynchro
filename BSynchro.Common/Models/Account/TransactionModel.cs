@@ -8,12 +8,10 @@ namespace BSynchro.Common.Models.Account
 {
     public class TransactionModel
     {
-        public Guid Id { get; set; }
+        public string Id { get; set; }
         public double Amount { get; set; }
-        public Guid FromCustomerId { get; set; }
-        public Guid ToCustomerId { get; set; }
-        public Guid? FromAccountId { get; set; }
-        public Guid? ToAccountId { get; set; }
+        public string FromCustomerId { get; set; }
+        public string ToCustomerId { get; set; }
         public DateTime CreatedDate { get; set; }
     }
 }
