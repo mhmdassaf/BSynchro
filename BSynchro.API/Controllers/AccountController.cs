@@ -1,6 +1,9 @@
+using BSynchro.BAL.Commands;
 using BSynchro.BAL.Interfaces;
+using BSynchro.BAL.Queries;
 using BSynchro.Common.Models;
 using BSynchro.Common.Models.Account;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
@@ -10,11 +13,12 @@ namespace BSynchro.API.Controllers
     [Route("[controller]/[action]")]
     public class AccountController : ControllerBase
     {
-
+        private readonly IMediator _mediator;
         private readonly ILogger<AccountController> _logger;
         private readonly IAccountService _accountService;
-        public AccountController(ILogger<AccountController> logger, IAccountService accountService)
+        public AccountController(IMediator mediator,ILogger<AccountController> logger, IAccountService accountService)
         {
+            _mediator = mediator;
             _logger = logger;
             _accountService = accountService;
         }
@@ -29,7 +33,8 @@ namespace BSynchro.API.Controllers
             var response = new ApiResponse();
             try
             {
-                List<CustomerListOutput> output = await _accountService.CustomerList();
+                var output = await _mediator.Send(new CustomerListQuery());
+                //List<CustomerListOutput> output = await _accountService.CustomerList();
                 response.Result = output;
 
             }
@@ -55,7 +60,8 @@ namespace BSynchro.API.Controllers
             var response = new ApiResponse();
             try
             {
-                OpenNewAccountOutput res = await _accountService.OpenNewAccount(input);
+                OpenNewAccountOutput res = await _mediator.Send(new OpenNewAccountCommand(input));
+                //OpenNewAccountOutput res = await _accountService.OpenNewAccount(input);
                 response.Result = res;
 
             }

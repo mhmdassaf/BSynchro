@@ -1,9 +1,12 @@
 ﻿using AutoMapper;
 using BSynchro.API.MappingProfiles;
+using BSynchro.BAL.Handlers;
+using BSynchro.BAL.Handlers.Base;
 using BSynchro.BAL.Interfaces;
 using BSynchro.BAL.Services;
 using BSynchro.Common.Models.Settings;
 using BSynchro.DAL.DataContext;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
@@ -34,6 +37,12 @@ namespace BSynchro.API.Extensions
         public static IServiceCollection AddAutoMapping(this IServiceCollection services)
         {
             services.AddAutoMapper(typeof(MappingProfile));
+            return services;
+        }
+
+        public static IServiceCollection AddMediatRs(this IServiceCollection services)
+        {
+            services.AddMediatR(typeof(BaseHandler).Assembly);
             return services;
         }
     }
