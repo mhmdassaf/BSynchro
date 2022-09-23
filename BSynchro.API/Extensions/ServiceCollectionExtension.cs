@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BSynchro.API.MappingProfiles;
+using BSynchro.BAL.Behaviors;
 using BSynchro.BAL.Handlers;
 using BSynchro.BAL.Handlers.Base;
 using BSynchro.BAL.Interfaces;
@@ -42,6 +43,7 @@ namespace BSynchro.API.Extensions
 
         public static IServiceCollection AddMediatRs(this IServiceCollection services)
         {
+            services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
             services.AddMediatR(typeof(BaseHandler).Assembly);
             return services;
         }
