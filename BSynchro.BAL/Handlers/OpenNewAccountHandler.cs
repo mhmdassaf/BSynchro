@@ -5,6 +5,7 @@ using BSynchro.Common.Constants;
 using BSynchro.Common.Models.Account;
 using BSynchro.Common.Models.Settings;
 using BSynchro.DAL.Entities;
+using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
@@ -28,32 +29,41 @@ namespace BSynchro.BAL.Handlers
 
         public async Task<OpenNewAccountOutput> Handle(OpenNewAccountCommand request, CancellationToken cancellationToken)
         {
-            var customerColleciton = _database.GetCollection<Customer>(DatabaseCollections.Customers);
-            var cursor = await customerColleciton.FindAsync(f => f.Id == request.Input.CustomerId);
-            var customer = cursor.FirstOrDefault();
-            if (customer != null)
+            var output = new OpenNewAccountOutput();
+            var validationResult = new OpenNewAccountCommandValidator().Validate(request);
+
+            if (validationResult.IsValid)
             {
-                await _publisher.Publish(new AddNewAccountEvent
+                var customerColleciton = _database.GetCollection<Customer>(DatabaseCollections.Customers);
+                var cursor = await customerColleciton.FindAsync(f => f.Id == request.Input.CustomerId);
+                var customer = cursor.FirstOrDefault();
+                if (customer != null)
                 {
-                    Customer = customer,
-                    InitialCredit = request.Input.InitialCredit,
-                    AccountName = request.Input.AccountName,
-                });
+                    await _publisher.Publish(new AddNewAccountEvent
+                    {
+                        Customer = customer,
+                        InitialCredit = request.Input.InitialCredit,
+                        AccountName = request.Input.AccountName,
+                    });
 
-                var result = customerColleciton.ReplaceOne(f => f.Id == customer.Id, customer);
+                    var result = customerColleciton.ReplaceOne(f => f.Id == customer.Id, customer);
 
-                if (result.IsAcknowledged)
-                    return new OpenNewAccountOutput { ResponseMessage = "New account is created!" };
+                    if (result.IsAcknowledged) 
+                        output.ResponseMessage = "New account is created!";
+                    else 
+                        output.ResponseMessage = "Error on creating! try again";
+                }
                 else
-                    return new OpenNewAccountOutput { ResponseMessage = "Error on creating! try again" };
+                {
+                    output.ResponseMessage = "Wrong customer Id! customer not exist";
+                }
             }
             else
             {
-                return new OpenNewAccountOutput
-                {
-                    ResponseMessage = "Wrong customer Id! customer not exist"
-                };
+                output.Errors = validationResult.Errors.Select(err => err.ErrorMessage);
             }
+
+            return output;
         }
     }
 }

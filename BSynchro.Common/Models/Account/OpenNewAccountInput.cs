@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson;
+﻿using FluentValidation;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ namespace BSynchro.Common.Models.Account
     public class OpenNewAccountInput
     {
         [BsonId, BsonRepresentation(BsonType.ObjectId)]
-        public string CustomerId { get; set; }
+        public string? CustomerId { get; set; }
 
         [Required]
         public string AccountName { get; set; } = string.Empty;

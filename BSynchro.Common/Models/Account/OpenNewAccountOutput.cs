@@ -9,5 +9,6 @@ namespace BSynchro.Common.Models.Account
     public class OpenNewAccountOutput
     {
         public string? ResponseMessage { get; set; }
+        public object? Errors { get; set; }
     }
 }
