@@ -1,4 +1,5 @@
 ﻿using BSynchro.BAL.Commands;
+using BSynchro.BAL.Events;
 using BSynchro.BAL.Handlers.Base;
 using BSynchro.Common.Constants;
 using BSynchro.Common.Models.Account;
@@ -18,9 +19,11 @@ namespace BSynchro.BAL.Handlers
     public class OpenNewAccountHandler : BaseHandler, IRequestHandler<OpenNewAccountCommand, OpenNewAccountOutput>
     {
         private readonly IMongoDatabase _database;
-        public OpenNewAccountHandler(IMongoClient mongoClient, IDatabaseSettings databaseSettings)
+        private readonly IPublisher _publisher;
+        public OpenNewAccountHandler(IPublisher publisher,IMongoClient mongoClient, IDatabaseSettings databaseSettings)
         {
             _database = mongoClient.GetDatabase(databaseSettings.DatabaseName);
+            _publisher = publisher;
         }
 
         public async Task<OpenNewAccountOutput> Handle(OpenNewAccountCommand request, CancellationToken cancellationToken)
@@ -30,31 +33,12 @@ namespace BSynchro.BAL.Handlers
             var customer = cursor.FirstOrDefault();
             if (customer != null)
             {
-                var newAccount = new Account
+                await _publisher.Publish(new AddNewAccountEvent
                 {
-                    OpeningBalance = request.Input.InitialCredit,
-                    Balance = request.Input.InitialCredit,
-                    CreatedBy = customer.FirstName + " " + customer.LastName,
-                    CreatedDate = DateTime.Now,
-                    Description = "Current account",
-                    Name = request.Input.AccountName,
-                    Number = await GenerateAccountNb()
-                };
-
-                if (request.Input.InitialCredit > 0)
-                {
-                    var newTrans = new Transaction
-                    {
-                        Amount = request.Input.InitialCredit,
-                        CreatedBy = customer.FirstName + " " + customer.LastName,
-                        CreatedDate = DateTime.Now,
-                        ToCustomer = new CustomerModel { Id = customer.Id, FirstName = customer.FirstName, LastName = customer.LastName },
-                    };
-                    _database.GetCollection<Transaction>(DatabaseCollections.Transactions).InsertOne(newTrans);
-                    newAccount.ToAccountTransactions = new string[] { newTrans.Id };
-                }
-
-                customer.Accounts.Add(newAccount);
+                    Customer = customer,
+                    InitialCredit = request.Input.InitialCredit,
+                    AccountName = request.Input.AccountName,
+                });
 
                 var result = customerColleciton.ReplaceOne(f => f.Id == customer.Id, customer);
 
@@ -71,21 +55,5 @@ namespace BSynchro.BAL.Handlers
                 };
             }
         }
-
-        #region Extensions
-        private async Task<string> GenerateAccountNb()
-        {
-            while (true)
-            {
-                string accountNb = new Random().NextInt64(100000000000, 999999999999).ToString();
-                var cursor = await _database.GetCollection<Customer>(DatabaseCollections.Customers)
-                                         .FindAsync(w => w.Accounts.Any(a => a.Number == accountNb));
-                var customer = await cursor.FirstOrDefaultAsync();
-                if (customer == null)
-                    return accountNb;
-            }
-            return null;
-        }
-        #endregion
     }
 }
